@@ -65,6 +65,12 @@ public class PlayerMotor : MonoBehaviour {
 				anim.SetTrigger("Jump");
 				verticalVelocity = jumpForce;
 			}
+
+			else if(Input.GetKeyDown(KeyCode.DownArrow))
+			{
+				StartSliding();
+				Invoke("StopSliding", 1.0f);
+			}
 		}
 		else {
 			verticalVelocity -= (gravity * Time.deltaTime);
@@ -83,6 +89,23 @@ public class PlayerMotor : MonoBehaviour {
 		Vector3 dir = controller.velocity;
 		dir.y = 0;
 		transform.forward = Vector3 .Lerp(transform.forward, dir, TURN_SPEED) ;
+	}
+
+	private void StartSliding()
+	{
+		anim.SetBool("Sliding", true);
+		controller.height/=2;
+		controller.center=new Vector3(controller.center.x, controller.center.y/2, controller.center.z);
+
+	}
+
+	private void StopSliding()
+	{
+		anim.SetBool("Sliding", false);
+		controller.height*=2;
+		controller.center=new Vector3(controller.center.x, controller.center.y*2, controller.center.z);
+
+	
 	}
 
 	private void moveLane(bool goingRight)
@@ -110,5 +133,22 @@ public class PlayerMotor : MonoBehaviour {
 
 	public void StartRunning() {
 		isRunning = true;
+		anim.SetTrigger("StartRunning");
+	}
+
+	private void Crash()
+	{
+		anim.SetTrigger("Death");
+		isRunning=false;
+	}
+
+	private void OnControllerColliderHit(ControllerColliderHit hit)
+	{
+		switch(hit.gameObject.tag)
+		{
+			case "Obstacle":
+				Crash();
+				break;
+		}
 	}
 }
